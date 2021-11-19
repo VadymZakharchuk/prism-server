@@ -1,8 +1,9 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { User } from "../users/users.model";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { AuthService } from "./auth.service";
+import { UsersService } from '../users/users.service';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -22,5 +23,12 @@ export class AuthController {
   @Post('/registration')
   registration(@Body() dtoUser: CreateUserDto) {
     return this.authService.register(dtoUser)
+  }
+
+  @ApiOperation({summary: 'Обновление пары токенов'})
+  @ApiResponse({status: 200, type: User})
+  @Get('/refresh')
+  refreshToken(@Req() reqObj) {
+    return this.authService.refreshToken(reqObj)
   }
 }

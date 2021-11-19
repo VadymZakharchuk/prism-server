@@ -51,10 +51,6 @@ export class User extends Model<User, UserCreationAttrs>{
   @Column({type: DataType.STRING, allowNull: true})
   banReason: string;
 
-  @ApiProperty({example: 'jwtToken', description: 'jwtToken'})
-  @Column({type: DataType.STRING(600), allowNull: true})
-  jwt: string;
-
   @ApiProperty({example: 'refreshToken', description: 'refreshToken'})
   @Column({type: DataType.STRING(300), allowNull: true})
   rt: string;

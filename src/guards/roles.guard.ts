@@ -18,7 +18,7 @@ export class RolesGuard implements CanActivate {
               private reflector: Reflector) {}
 
   private UserUnAuthorised() {
-    throw new UnauthorizedException('User isn\'t authorized ')
+    throw new HttpException('jwtService error', HttpStatus.UNAUTHORIZED)
   }
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest() // obtaining of request object
@@ -42,7 +42,11 @@ export class RolesGuard implements CanActivate {
         return userData.roles.some((role) => requiredRoles.includes(role.value))
       }
     } catch (e) {
-      throw new HttpException('Forbidden resource', HttpStatus.FORBIDDEN)
+      if (e.name === 'TokenExpiredError') {
+        throw new HttpException('Token expired', 498)
+      } else {
+        throw new HttpException('Forbidden resource', HttpStatus.FORBIDDEN)
+      }
     }
   }
 

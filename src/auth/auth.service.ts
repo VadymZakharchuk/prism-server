@@ -14,7 +14,6 @@ export class AuthService {
   async login(dtoUser: CreateUserDto) {
     const userObj = await this.validateUser(dtoUser)
     const setTokens = await this.generateToken(userObj)
-    userObj.jwt = setTokens.accessToken
     userObj.rt = setTokens.refreshToken
     await userObj.save()
     return setTokens
@@ -33,8 +32,21 @@ export class AuthService {
     return this.generateToken(userObj)
   }
 
-  private async generateToken(user: User) {
+  async refreshToken(req) {
+    const userObj = await this.userService.getUserData(req)
+    const authHeader = req.headers.authorization
+    const token = authHeader.split(' ')[1]
+    if (token === userObj.rt) {
+      const setTokens = await this.generateToken(userObj)
+      userObj.rt = setTokens.refreshToken
+      await userObj.save()
+      return setTokens
+    } else {
+      throw new HttpException('Refresh Token Authentication Timeout', 419)
+    }
+  }
 
+  private async generateToken(user: User) {
     const payloadJWT = {
       email: user.email,
       id: user.id,
@@ -59,4 +71,5 @@ export class AuthService {
     }
     throw new UnauthorizedException('Некорректный EMail или пароль!')
   }
+
 }

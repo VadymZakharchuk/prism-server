@@ -1,16 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { User } from "./users.model";
-import { InjectModel } from "@nestjs/sequelize";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { RolesService } from "../roles/roles.service";
-import { AddRoleDto } from "./dto/add-role.dto";
-import { BanUserDto } from "./dto/ban-user.dto";
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { User } from './users.model';
+import { InjectModel } from '@nestjs/sequelize';
+import { CreateUserDto } from './dto/create-user.dto';
+import { RolesService } from '../roles/roles.service';
+import { AddRoleDto } from './dto/add-role.dto';
+import { BanUserDto } from './dto/ban-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
 
   constructor(@InjectModel(User)
               private repoUser: typeof User,
+              private jwtService: JwtService,
               private rolesService: RolesService){}
 
   async createUser (dto: CreateUserDto) {
@@ -59,6 +61,17 @@ export class UsersService {
     return user
   }
   async getUserData (req) {
-    console.log(req.headers);
+    try {
+      const authHeader = req.headers.authorization
+      const bearer = authHeader.split(' ')[0]
+      const token = authHeader.split(' ')[1]
+      if( bearer !== 'Bearer' || !token) {
+        throw new UnauthorizedException('Пользователь не авторизован')
+      }
+      const user = this.jwtService.verify(token)
+      return await this.repoUser.findByPk(user.id)
+    } catch (e) {
+      throw new HttpException(e.name, 401)
+    }
   }
 }
