@@ -32,11 +32,11 @@ export class AuthService {
     return this.generateToken(userObj)
   }
 
-  async refreshToken(req) {
-    const userObj = await this.userService.getUserData(req)
-    const authHeader = req.headers.authorization
-    const token = authHeader.split(' ')[1]
-    if (token === userObj.rt) {
+  async refreshToken(rToken) {
+    const tObj = this.jwtService.verify(rToken.token)
+    const userObj = await this.userService.getUserById(tObj.id)
+    console.log('rt / user.rt', rToken.token, userObj.rt);
+    if (rToken === userObj.rt) {
       const setTokens = await this.generateToken(userObj)
       userObj.rt = setTokens.refreshToken
       await userObj.save()

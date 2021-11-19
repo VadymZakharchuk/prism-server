@@ -74,4 +74,7 @@ export class UsersService {
       throw new HttpException(e.name, 401)
     }
   }
+  async getUserById(id: number) {
+    return await this.repoUser.findByPk(id)
+  }
 }
