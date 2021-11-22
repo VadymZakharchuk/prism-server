@@ -37,7 +37,8 @@ export class RolesGuard implements CanActivate {
         this.UserUnAuthorised()
         return false
       } else {
-        const userData = this.jwtService.verify(token)
+        const userData = this.jwtService.verify(token,
+          { secret: process.env.SECRET_KEY })
         req.user = userData
         return userData.roles.some((role) => requiredRoles.includes(role.value))
       }

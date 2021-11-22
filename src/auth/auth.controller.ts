@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Headers, Controller, Get, Post, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { User } from "../users/users.model";
 import { CreateUserDto } from "../users/dto/create-user.dto";
@@ -28,7 +28,7 @@ export class AuthController {
   @ApiOperation({summary: 'Обновление пары токенов'})
   @ApiResponse({status: 200, type: User})
   @Post('/refresh')
-  refreshToken(@Body() token) {
-    return this.authService.refreshToken(token)
+  refreshToken(@Headers() headers) {
+    return this.authService.refreshToken(headers)
   }
 }

@@ -32,14 +32,29 @@ export class AuthService {
     return this.generateToken(userObj)
   }
 
-  async refreshToken(rToken) {
-    const tObj = this.jwtService.verify(rToken.token)
-    const userObj = await this.userService.getUserById(tObj.id)
-    console.log('rt / user.rt', rToken.token, userObj.rt);
-    if (rToken === userObj.rt) {
-      const setTokens = await this.generateToken(userObj)
-      userObj.rt = setTokens.refreshToken
-      await userObj.save()
+  async refreshToken(headers) {
+    const authHeader = headers.authorization
+    const bearer = authHeader.split(' ')[0]
+    const rToken = authHeader.split(' ')[1]
+
+    const tObj = this.jwtService.verify(
+      rToken,
+      {
+        secret: process.env.SECRET_KEY,
+        ignoreExpiration: true
+      })
+
+    const userDb = await this.userService.getUserByEmail(tObj.email)
+    const userObj = this.jwtService.verify(
+      userDb.rt,
+      {
+        secret: process.env.SECRET_KEY,
+        ignoreExpiration: true
+      })
+    if (userDb.email === userObj.email) {
+      const setTokens = await this.generateToken(userDb)
+      userDb.rt = setTokens.refreshToken
+      await userDb.save()
       return setTokens
     } else {
       throw new HttpException('Refresh Token Authentication Timeout', 419)
@@ -58,8 +73,17 @@ export class AuthService {
       issued: new Date()
     }
     return {
-      accessToken: this.jwtService.sign(payloadJWT, {expiresIn: parseInt(process.env.JWT_EXP)}),
-      refreshToken: this.jwtService.sign(payloadRT)
+      accessToken: this.jwtService.sign(
+        payloadJWT,
+        {
+          secret: process.env.SECRET_KEY,
+          expiresIn: parseInt(process.env.JWT_EXP)
+        }),
+      refreshToken: this.jwtService.sign(
+        payloadRT,
+        { secret:
+          process.env.SECRET_KEY
+        })
     }
   }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Headers, Controller, Get, Param, Post, Req, UseGuards, UsePipes } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./users.model";
@@ -36,8 +36,8 @@ export class UsersController {
   @ApiResponse({status: 200, type: [User]})
   @UseGuards(RolesGuard)
   @Get('/me')
-  getUserData(@Req() reqObj) {
-    return this.usersService.getUserData(reqObj)
+  getUserData(@Headers() headers) {
+    return this.usersService.getUserData(headers)
   }
 
   @ApiOperation({summary: 'Добавить роль пользователю'})

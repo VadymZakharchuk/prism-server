@@ -23,9 +23,11 @@ export class JwtAuthGuard implements CanActivate {
       if( bearer !== 'Bearer' || !token) {
         throw new HttpException('User unauthorized', 401)
       }
-      req.user = this.jwtService.verify(token)
+      req.user = this.jwtService.verify(token,
+        { secret: process.env.SECRET_KEY })
       return true
     } catch (e) {
+      console.log('Error in jwt-auth guard', e);
       throw new HttpException('Token expired', 498)
     }
   }

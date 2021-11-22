@@ -60,15 +60,16 @@ export class UsersService {
     await user.save()
     return user
   }
-  async getUserData (req) {
+  async getUserData (headers) {
     try {
-      const authHeader = req.headers.authorization
+      const authHeader = headers.authorization
       const bearer = authHeader.split(' ')[0]
       const token = authHeader.split(' ')[1]
       if( bearer !== 'Bearer' || !token) {
         throw new UnauthorizedException('Пользователь не авторизован')
       }
-      const user = this.jwtService.verify(token)
+      const user = this.jwtService.verify(token,
+        { secret: process.env.SECRET_KEY})
       return await this.repoUser.findByPk(user.id)
     } catch (e) {
       throw new HttpException(e.name, 401)
