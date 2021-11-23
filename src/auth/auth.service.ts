@@ -4,6 +4,8 @@ import { UsersService } from "../users/users.service";
 import * as bcrypt from 'bcryptjs'
 import { User } from "../users/users.model";
 import { JwtService } from "@nestjs/jwt";
+import { ForgotPasswordDto } from './dto/forgot-passowrd.dto';
+import { SetNewPasswordDto } from './dto/set-new-passowrd.dto';
 
 @Injectable()
 export class AuthService {
@@ -59,6 +61,24 @@ export class AuthService {
     } else {
       throw new HttpException('Refresh Token Authentication Timeout', 419)
     }
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.userService.getUserByEmail(dto.email)
+    if(!user) {
+      throw new HttpException('Email not found', HttpStatus.NO_CONTENT)
+    }
+    const verifyCode = Math.ceil(Math.random() * 1000000)
+    user.password = verifyCode.toString()
+    // send Email to dto.email
+    await user.save()
+    return user.email
+  }
+
+  async setNewPassword(dto: SetNewPasswordDto) {
+    console.log(dto.password, typeof dto.password)
+    const hashPassword = await bcrypt.hash(dto.password, 5)
+    return await this.userService.setNewPassword({ ...dto, password: hashPassword })
   }
 
   private async generateToken(user: User) {

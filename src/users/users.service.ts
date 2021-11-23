@@ -6,6 +6,7 @@ import { RolesService } from '../roles/roles.service';
 import { AddRoleDto } from './dto/add-role.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { SetNewPasswordDto } from '../auth/dto/set-new-passowrd.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,7 @@ export class UsersService {
 
   async createUser (dto: CreateUserDto) {
     const user = await this.repoUser.create(dto)
-    const role = await this.rolesService.getRoleByValue('ADMIN')
+    const role = await this.rolesService.getRoleByValue('USER')
     await user.$set('roles', [role.id])
     user.roles = [role]
     return user
@@ -77,5 +78,17 @@ export class UsersService {
   }
   async getUserById(id: number) {
     return await this.repoUser.findByPk(id)
+  }
+  async setNewPassword(dto: SetNewPasswordDto) {
+    const user = await this.getUserByEmail(dto.email)
+    if(!user){
+      throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND)
+    }
+    if( user.password !== dto.verifyCode) {
+      throw new HttpException('Wrong verify code', HttpStatus.CONFLICT)
+    }
+    user.password = dto.password
+    await user.save()
+    return user
   }
 }
