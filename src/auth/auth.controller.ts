@@ -1,9 +1,8 @@
-import { Body, Headers, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Headers, Controller, Post} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { User } from "../users/users.model";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { AuthService } from "./auth.service";
-import { UsersService } from '../users/users.service';
 import { ForgotPasswordDto } from './dto/forgot-passowrd.dto';
 import { SetNewPasswordDto } from './dto/set-new-passowrd.dto';
 
@@ -45,7 +44,6 @@ export class AuthController {
   @ApiResponse({status: 200, type: User})
   @Post('/set-new')
   setNewPassword(@Body() obj: SetNewPasswordDto) {
-    console.log(obj);
     return this.authService.setNewPassword(obj)
   }
 }

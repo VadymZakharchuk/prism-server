@@ -6,12 +6,14 @@ import { User } from "../users/users.model";
 import { JwtService } from "@nestjs/jwt";
 import { ForgotPasswordDto } from './dto/forgot-passowrd.dto';
 import { SetNewPasswordDto } from './dto/set-new-passowrd.dto';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class AuthService {
 
   constructor(private userService: UsersService,
-              private jwtService: JwtService) {}
+              private jwtService: JwtService,
+              private emailService: EmailService) {}
 
   async login(dtoUser: CreateUserDto) {
     const userObj = await this.validateUser(dtoUser)
@@ -36,7 +38,6 @@ export class AuthService {
 
   async refreshToken(headers) {
     const authHeader = headers.authorization
-    const bearer = authHeader.split(' ')[0]
     const rToken = authHeader.split(' ')[1]
 
     const tObj = this.jwtService.verify(
@@ -70,13 +71,12 @@ export class AuthService {
     }
     const verifyCode = Math.ceil(Math.random() * 1000000)
     user.password = verifyCode.toString()
-    // send Email to dto.email
     await user.save()
-    return user.email
+    const res = await this.emailService.sendEmail(dto.email, verifyCode.toString())
+    return user.email === res ? user.email : null
   }
 
   async setNewPassword(dto: SetNewPasswordDto) {
-    console.log(dto.password, typeof dto.password)
     const hashPassword = await bcrypt.hash(dto.password, 5)
     return await this.userService.setNewPassword({ ...dto, password: hashPassword })
   }
