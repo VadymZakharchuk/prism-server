@@ -9,8 +9,7 @@ import { Branch } from './branches/branches.model';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
-import { ChatService } from './chat/chat.service';
-import { ChatController } from './chat/chat.controller';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -31,8 +30,9 @@ import { ChatController } from './chat/chat.controller';
     RolesModule,
     AuthModule,
     BranchesModule,
+    EventsModule,
   ],
-  controllers: [ChatController],
-  providers: [ChatService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
