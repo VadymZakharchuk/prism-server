@@ -9,7 +9,7 @@ import { Branch } from './branches/branches.model';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
-import { EventsModule } from './events/events.module';
+import { SocketModule } from './sockets/socket.module';
 
 @Module({
   imports: [
@@ -30,7 +30,7 @@ import { EventsModule } from './events/events.module';
     RolesModule,
     AuthModule,
     BranchesModule,
-    EventsModule,
+    SocketModule,
   ],
   controllers: [],
   providers: [],

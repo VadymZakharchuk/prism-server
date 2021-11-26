@@ -76,7 +76,7 @@ export class UsersService {
       throw new HttpException(e.name, 401)
     }
   }
-  async getUserById(id: number) {
+  async getUserById(id: string) {
     return await this.repoUser.findByPk(id)
   }
   async setNewPassword(dto: SetNewPasswordDto) {

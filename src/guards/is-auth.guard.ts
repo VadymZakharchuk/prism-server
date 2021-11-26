@@ -6,32 +6,16 @@ import {
   Injectable
 } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { JwtService } from "@nestjs/jwt";
-import { Reflector } from "@nestjs/core";
-import { ROLES_KEY } from "../decorators/roles-auth.decorator";
 
 @Injectable()
-export class RolesGuard implements CanActivate {
-
-  constructor(private jwtService: JwtService,
-              private reflector: Reflector) {}
+export class IsUserAuth implements CanActivate {
 
   private UserUnAuthorised() {
-    throw new HttpException('jwtService error', HttpStatus.UNAUTHORIZED)
+    throw new HttpException('Authorization required', HttpStatus.UNAUTHORIZED)
   }
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest() // obtaining of request object
     try {
-      const requiredRoles = this.reflector.getAllAndOverride<string[]>(
-        ROLES_KEY,
-        [
-            context.getHandler(),
-            context.getClass
-          ]
-      )
-      if(!requiredRoles) {
-        return true
-      }
       const authHeader = req.headers.authorization
       console.log(authHeader);
       const bearer = authHeader.split(' ')[0]
@@ -40,10 +24,7 @@ export class RolesGuard implements CanActivate {
         this.UserUnAuthorised()
         return false
       } else {
-        const userData = this.jwtService.verify(token,
-          { secret: process.env.SECRET_KEY })
-        req.user = userData
-        return userData.roles.some((role) => requiredRoles.includes(role.value))
+        return true
       }
     } catch (e) {
       if (e.name === 'TokenExpiredError') {

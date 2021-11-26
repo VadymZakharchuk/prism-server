@@ -1,4 +1,4 @@
-import { Body, Headers, Controller, Get, Param, Post, Req, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Headers, Controller, Get, Param, Post, UseGuards, UsePipes } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./users.model";
@@ -8,6 +8,7 @@ import { RolesGuard } from "../guards/roles.guard";
 import { AddRoleDto } from "./dto/add-role.dto";
 import { BanUserDto } from "./dto/ban-user.dto";
 import { ValidationPipe } from '../pipes/validation.pipe';
+import { IsUserAuth } from '../guards/is-auth.guard';
 
 @ApiTags('table Users')
 @Controller('users')
@@ -32,12 +33,20 @@ export class UsersController {
     return this.usersService.getAllUsers()
   }
 
-  @ApiOperation({summary: 'Получить данные пользователя'})
+  @ApiOperation({summary: 'Получить данные авторизованного пользователя'})
   @ApiResponse({status: 200, type: [User]})
   @UseGuards(RolesGuard)
   @Get('/me')
   getUserData(@Headers() headers) {
     return this.usersService.getUserData(headers)
+  }
+
+  @ApiOperation({summary: 'Получить данные пользователя по ID'})
+  @ApiResponse({status: 200, type: [User]})
+  @UseGuards(IsUserAuth)
+  @Get('/:uid')
+  getUserById(@Param('uid') uid: string) {
+    return this.usersService.getUserById(uid)
   }
 
   @ApiOperation({summary: 'Добавить роль пользователю'})
