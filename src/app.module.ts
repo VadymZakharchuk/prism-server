@@ -15,6 +15,8 @@ import { ChatroomsModule } from './chatrooms/chatrooms.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { Attachment } from './attachments/attachments.model';
+import { UserRooms } from './chatrooms/user-rooms';
+import { Room } from './chatrooms/chatrooms.model';
 
 @Module({
   imports: [
@@ -28,7 +30,7 @@ import { Attachment } from './attachments/attachments.model';
       username: process.env.DB_USER,
       password: process.env.DB_PSWD,
       database: process.env.DB_NAME,
-      models: [User, Role, UserRoles, Branch, Attachment],
+      models: [User, Role, UserRoles, UserRooms, Room, Branch, Attachment],
       autoLoadModels: true,
     }),
     MulterModule.register({

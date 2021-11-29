@@ -17,7 +17,6 @@ export class IsUserAuth implements CanActivate {
     const req = context.switchToHttp().getRequest() // obtaining of request object
     try {
       const authHeader = req.headers.authorization
-      console.log(authHeader);
       const bearer = authHeader.split(' ')[0]
       const token = authHeader.split(' ')[1]
       if( bearer !== 'Bearer' || !token) {

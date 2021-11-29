@@ -21,7 +21,7 @@ export class UsersService {
     private repoUser: typeof User,
     private jwtService: JwtService,
     private rolesService: RolesService,
-    private attachmenstService: AttachmentsService,
+    private attachmentsService: AttachmentsService,
   ) {}
 
   async createUser(dto: CreateUserDto) {
@@ -111,7 +111,7 @@ export class UsersService {
     const user = await this.getUserById(uid);
     const params = body;
     if (file !== undefined) {
-      params.avatar = await this.attachmenstService.createAttachment({
+      params.avatar = await this.attachmentsService.createAttachment({
         mimetype: body.mimetype,
         ownerId: user.id,
         file: file,

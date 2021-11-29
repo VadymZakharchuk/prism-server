@@ -1,12 +1,15 @@
 import {
+  BelongsToMany,
   Column,
   DataType,
   ForeignKey,
   Model,
-  Table,
+  Table
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 import { Attachment } from '../attachments/attachments.model';
+import { User } from '../users/users.model';
+import { UserRooms } from './user-rooms';
 
 interface RoomCreationInterface {
   name: string;
@@ -26,6 +29,16 @@ export class Room extends Model<Room, RoomCreationInterface> {
     primaryKey: true,
   })
   id: number;
+
+  @ApiProperty({
+    example: '123',
+    description: 'ID собственника комнаты',
+  })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  owner: number;
 
   @ApiProperty({
     example: 'Еженедельное совещание',
@@ -58,4 +71,7 @@ export class Room extends Model<Room, RoomCreationInterface> {
     allowNull: true,
   })
   avatar: number;
+
+  @BelongsToMany(() => User, () => UserRooms)
+  users: User[]
 }
