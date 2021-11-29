@@ -70,9 +70,7 @@ export class UsersController {
     @UploadedFile() file,
     @Body() body,
   ) {
-    console.log('received uid ::', uid);
-    console.log('received file ::', file);
-    console.log('received body.name ::', body.name);
+    return this.usersService.updateUserByID(uid, file, body)
   }
 
   @ApiOperation({ summary: 'Добавить роль пользователю' })

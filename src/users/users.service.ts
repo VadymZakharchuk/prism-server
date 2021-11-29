@@ -12,6 +12,7 @@ import { AddRoleDto } from './dto/add-role.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { SetNewPasswordDto } from '../auth/dto/set-new-passowrd.dto';
+import { AttachmentsService } from '../attachments/attachments.service';
 
 @Injectable()
 export class UsersService {
@@ -20,6 +21,7 @@ export class UsersService {
     private repoUser: typeof User,
     private jwtService: JwtService,
     private rolesService: RolesService,
+    private attachmenstService: AttachmentsService,
   ) {}
 
   async createUser(dto: CreateUserDto) {
@@ -103,5 +105,19 @@ export class UsersService {
     user.password = dto.password;
     await user.save();
     return user;
+  }
+
+  async updateUserByID(uid: string, file: Buffer, body) {
+    const user = await this.getUserById(uid);
+    const params = body;
+    if (file !== undefined) {
+      params.avatar = await this.attachmenstService.createAttachment({
+        mimetype: body.mimetype,
+        ownerId: user.id,
+        file: file,
+      });
+    }
+    const fields = Object.keys(params);
+    return await user.update(params, { fields: fields });
   }
 }

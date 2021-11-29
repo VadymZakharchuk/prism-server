@@ -3,8 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import * as Buffer from 'buffer';
 
 interface AttachmentAddInterface {
-  type: number;
-  isPrivate: boolean;
+  mimetype: string;
+  ownerId: number;
+  file: Buffer;
 }
 
 @Table({ tableName: 'attachments' })
@@ -20,6 +21,26 @@ export class Attachment extends Model<Attachment, AttachmentAddInterface> {
     primaryKey: true,
   })
   id: number;
+
+  @ApiProperty({
+    example: 'image/jpeg',
+    description: 'File mimetype',
+  })
+  @Column({
+    type: DataType.STRING(30),
+    allowNull: true,
+  })
+  mimetype: string;
+
+  @ApiProperty({
+    example: '<owner Id>',
+    description: 'ID собственника файла',
+  })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  ownerId: number;
 
   @ApiProperty({
     example: '<bin file>',

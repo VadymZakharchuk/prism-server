@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AttachmentAddDto {
   @ApiProperty({
-    example: '1',
-    description: 'Тип 1=image, 2=video, 3=file, 4=sound',
+    example: 'image/jpeg',
+    description: 'Mime type файла',
   })
-  type: number;
+  mimetype: string;
   @ApiProperty({
     example: '123',
     description: 'ID собственника файла',
