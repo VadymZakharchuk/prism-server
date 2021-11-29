@@ -10,7 +10,7 @@ import { Observable } from "rxjs";
 @Injectable()
 export class IsUserAuth implements CanActivate {
 
-  private UserUnAuthorised() {
+  UserUnAuthorised() {
     throw new HttpException('Authorization required', HttpStatus.UNAUTHORIZED)
   }
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
