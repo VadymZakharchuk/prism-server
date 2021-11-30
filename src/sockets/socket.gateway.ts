@@ -9,6 +9,8 @@ import {
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 
+const m = (name, text ) => ({ name, text })
+
 @WebSocketGateway()
 export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer()
@@ -19,6 +21,12 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	@SubscribeMessage('msgToServer')
 	handleMessage(client: Socket, payload: string): void {
 		this.server.emit('msgToClient', payload);
+	}
+
+	@SubscribeMessage('userJoined')
+	handleUserJoin(client: Socket, payload): void {
+		const handShake = `Welcome to the board, ${payload.userName}`
+		this.server.emit('handShakeClient', m('Admin', handShake));
 	}
 
 	afterInit(server: Server) {
@@ -35,9 +43,10 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
-	handleConnection(client: Socket, ...args: any[]) {
+	handleConnection(client: Socket, args: any[]) {
 		this.logger.log(`Client connected: ${client.id}`);
 		this.wsClients.push(client)
+		return client.id;
 	}
 
 	broadcast(event, message: any) {
