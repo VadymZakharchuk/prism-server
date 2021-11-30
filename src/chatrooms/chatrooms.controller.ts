@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChatService } from './chatrooms.service';
 import { Room } from './chatrooms.model';
@@ -39,8 +39,8 @@ export class ChatRoomsController {
 		return this.chatService.removeUserFromRoom(dto)
 	}
 
-	@ApiOperation({ summary: 'Update данных пользователя по ID' })
-	@ApiResponse({ status: 200, type: [User] })
+	@ApiOperation({ summary: 'Update данных комнаты по ID' })
+	@ApiResponse({ status: 200, type: Room })
 	@UseGuards(IsUserAuth)
 	@Post('/:roomId')
 	@UseInterceptors(FileInterceptor('file'))
@@ -52,11 +52,31 @@ export class ChatRoomsController {
 		return this.chatService.updateRoom(roomId, file ,body)
 	}
 
-	@ApiOperation({ summary: 'Update данных пользователя по ID' })
-	@ApiResponse({ status: 200, type: [User] })
+	@ApiOperation({ summary: 'Удалить комнату по ID' })
+	@ApiResponse({ status: 200, type: Room })
 	@UseGuards(IsUserAuth)
 	@Delete('/:roomId')
 	removeRoom(@Param('roomId') roomId: string ) {
 		return this.chatService.removeRoom(roomId)
+	}
+
+	@ApiOperation({ summary: 'Получить список всех комнат' })
+	@ApiResponse({ status: 200, type: Room })
+	@UseGuards(IsUserAuth)
+	@Get('/list')
+	listRooms(@TokenGetUserID() userId: string, @Body() body){
+		if (body.mylist) {
+			return this.chatService.listMyRooms(userId)
+		} else {
+			return this.chatService.listRooms()
+		}
+	}
+
+	@ApiOperation({ summary: 'Получить список участников комнаты' })
+	@ApiResponse({ status: 200, type: Room })
+	@UseGuards(IsUserAuth)
+	@Get('/:roomId')
+	listRoomMembers(@Param('roomId') roomId: string){
+		return this.chatService.listRoomMembers(roomId)
 	}
 }
