@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Res, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChatService } from './chatrooms.service';
 import { Room } from './chatrooms.model';
@@ -9,6 +9,9 @@ import { AddUserToRoomDto } from './dto/add-user-to-room.dto';
 import { DelUserFromRoomDto } from './dto/del-user-from-room.dto';
 import { User } from '../users/users.model';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from  'path';
+
 
 @ApiTags('table Chat Rooms')
 @Controller('chat')
@@ -43,13 +46,53 @@ export class ChatRoomsController {
 	@ApiResponse({ status: 200, type: Room })
 	@UseGuards(IsUserAuth)
 	@Post('/:roomId')
-	@UseInterceptors(FileInterceptor('file'))
+	@UseInterceptors(FileInterceptor('file',
+		{
+				storage: diskStorage({
+					destination: './room-avatars',
+					filename: (req, file, cb) => {
+						const randomName = Array(32).fill(null).map(() =>
+							(Math.round(Math.random() * 16)).toString(16)).join('')
+						return cb(null, `${randomName}${extname(file.originalname)}`)
+					}
+				})
+			}
+		))
 	updateRoomById(
 		@Param('roomId') roomId: string,
 		@UploadedFile() file,
 		@Body() body,
 	) {
 		return this.chatService.updateRoom(roomId, file ,body)
+	}
+
+	@ApiOperation({ summary: 'Установить аватар комнаты по ID' })
+	@ApiResponse({ status: 200, type: Room })
+	@UseGuards(IsUserAuth)
+	@Post('/:roomId/avatar')
+	@UseInterceptors(FileInterceptor('file',
+		{
+			storage: diskStorage({
+				destination: './room-avatars',
+				filename: (req, file, cb) => {
+					const randomName = Array(32).fill(null).map(() =>
+						(Math.round(Math.random() * 16)).toString(16)).join('')
+					return cb(null, `${randomName}${extname(file.originalname)}`)
+				}
+			})
+		}
+	))
+	uploadAvatar(@Param('roomId') roomId, @UploadedFile() file) {
+		return this.chatService.setAvatar(
+			roomId,
+			`http://${process.env.DB_HOST}:${process.env.APP_PORT}/chat/${file.path}`);
+	}
+
+	@ApiOperation({ summary: 'Получить аватар комнаты по имени' })
+	@ApiResponse({ status: 200, type: Room })
+	@Get('/room-avatars/:fileId')
+	async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<any> {
+		res.sendFile(fileId, { root: 'room-avatars'});
 	}
 
 	@ApiOperation({ summary: 'Удалить комнату по ID' })

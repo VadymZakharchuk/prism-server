@@ -65,12 +65,11 @@ export class Room extends Model<Room, RoomCreationInterface> {
     example: '<ссылка на аватар>',
     description: 'Ссылка на аватар',
   })
-  @ForeignKey(() => Attachment)
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
     allowNull: true,
   })
-  avatar: number;
+  avatar: string;
 
   @BelongsToMany(() => User, () => UserRooms)
   users: User[]

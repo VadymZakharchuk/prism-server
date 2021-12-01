@@ -47,6 +47,10 @@ export class ChatService {
 		return await room.update(params, { fields: fields });
 	}
 
+	async setAvatar( roomId: string, avatarUrl: string ){
+		const room = await this.getRoomById(roomId)
+		return await room.update({ avatar: avatarUrl }, {fields: ['avatar']});
+	}
 	async removeRoom(roomId){
 		await this.repoChatRooms.destroy(
 			{ where: { id: roomId }

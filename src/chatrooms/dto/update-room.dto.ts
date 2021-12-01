@@ -15,5 +15,5 @@ export class UpdateRoomDto {
     example: '<ref to avatar>',
     description: 'Ссылка на аватар комнаты',
   })
-  avatar: number;
+  avatar: string;
 }
