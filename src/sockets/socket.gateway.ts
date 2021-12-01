@@ -15,7 +15,6 @@ const m = (name, text ) => ({ name, text })
 export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer()
 	server: Server
-	wsClients=[]
 	private logger: Logger = new Logger('EventsGateway');
 
 	@SubscribeMessage('msgToServer')
@@ -25,7 +24,8 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	@SubscribeMessage('userJoined')
 	handleUserJoin(client: Socket, payload): void {
-		const handShake = `Welcome to the board, ${payload.userName}`
+		const handShake = `Welcome on board, ${payload.userName}`
+		console.log(handShake);
 		this.server.emit('handShakeClient', m('Admin', handShake));
 	}
 
@@ -34,25 +34,11 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	handleDisconnect(client: Socket) {
-		for (let i = 0; i < this.wsClients.length; i++) {
-			if (this.wsClients[i] === client) {
-				this.wsClients.splice(i, 1);
-				break;
-			}
-		}
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
 	handleConnection(client: Socket, args: any[]) {
 		this.logger.log(`Client connected: ${client.id}`);
-		this.wsClients.push(client)
-		return client.id;
-	}
-
-	broadcast(event, message: any) {
-		const broadCastMessage = JSON.stringify(message);
-		for (let c of this.wsClients) {
-			c.send(event, broadCastMessage);
-		}
+		return client
 	}
 }

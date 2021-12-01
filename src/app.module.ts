@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { BranchesModule } from './branches/branches.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { Role } from './roles/roles.model';
 import { UserRoles } from './roles/user-roles';
 import { User } from './users/users.model';
@@ -17,6 +18,7 @@ import { AttachmentsModule } from './attachments/attachments.module';
 import { Attachment } from './attachments/attachments.model';
 import { UserRooms } from './chatrooms/user-rooms';
 import { Room } from './chatrooms/chatrooms.model';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -32,6 +34,9 @@ import { Room } from './chatrooms/chatrooms.model';
       database: process.env.DB_NAME,
       models: [User, Role, UserRoles, UserRooms, Room, Branch, Attachment],
       autoLoadModels: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
     }),
     MulterModule.register({
       dest: './files',
