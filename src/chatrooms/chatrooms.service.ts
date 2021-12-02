@@ -4,23 +4,20 @@ import { Room } from './chatrooms.model';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { AddUserToRoomDto } from './dto/add-user-to-room.dto';
 import { DelUserFromRoomDto } from './dto/del-user-from-room.dto';
-import { AttachmentsService } from '../attachments/attachments.service';
 import { User } from '../users/users.model';
-import { where } from 'sequelize';
 
 @Injectable()
 export class ChatService {
 	constructor(
 		@InjectModel(Room)
 		private repoChatRooms: typeof Room,
-		private attachmentsService: AttachmentsService,
 	) {}
 
 	async createRoom(dto: CreateRoomDto, ownerId: string) {
 		dto['owner'] = ownerId
 		const room =  await this.repoChatRooms.create(dto)
 		await room.$add('user', ownerId)
-		return room
+		return room;
 	}
 	async getRoomById(roomId: string) {
 		return await this.repoChatRooms.findByPk(roomId)
@@ -33,28 +30,23 @@ export class ChatService {
 		const room = await this.getRoomById(dto.roomId)
 		return await room.$remove('user', dto.userId)
 	}
-	async updateRoom(roomId, file ,body){
+	async updateRoom(roomId, file, body, fileUrl){
 		const room = await this.getRoomById(roomId)
 		const params = body
 		if (file !== undefined) {
-			params.avatar = await this.attachmentsService.createAttachment({
-				mimetype: body.mimetype,
-				ownerId: room.owner,
-				file: file,
-			});
+			await room.update({ avatar: fileUrl }, {fields: ['avatar']});
 		}
 		const fields = Object.keys(params);
 		return await room.update(params, { fields: fields });
 	}
 
-	async setAvatar( roomId: string, avatarUrl: string ){
+	async setAvatar( roomId: string, avatarUrl: string ) {
 		const room = await this.getRoomById(roomId)
 		return await room.update({ avatar: avatarUrl }, {fields: ['avatar']});
 	}
+
 	async removeRoom(roomId){
-		await this.repoChatRooms.destroy(
-			{ where: { id: roomId }
-		})
+		await this.repoChatRooms.destroy({ where: { id: roomId } })
 	}
 
 	async listMyRooms(userId: string) {

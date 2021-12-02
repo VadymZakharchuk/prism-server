@@ -7,10 +7,10 @@ import { TokenGetUserID } from '../decorators/TokenGetUserID';
 import { IsUserAuth } from '../guards/is-auth.guard';
 import { AddUserToRoomDto } from './dto/add-user-to-room.dto';
 import { DelUserFromRoomDto } from './dto/del-user-from-room.dto';
-import { User } from '../users/users.model';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from  'path';
+import { getRandomFileName, HandleStaticPath } from '../decorators/StaticFilesHandling';
 
 
 @ApiTags('table Chat Rooms')
@@ -22,8 +22,11 @@ export class ChatRoomsController {
 	@ApiResponse({ status: 200, type: Room })
 	@UseGuards(IsUserAuth)
 	@Post()
-	createRoom(@Body() dto:CreateRoomDto, @TokenGetUserID() userId: string){
-		return this.chatService.createRoom(dto, userId)
+	async createRoom(@Body() dto:CreateRoomDto, @TokenGetUserID() userId: string){
+		const room = await this.chatService.createRoom(dto, userId)
+		let path = `./public/rooms/${room.id}`;
+		HandleStaticPath(path, { recursive: true }, err => { if (err) throw err })
+		return room
 	}
 
 	@ApiOperation({ summary: 'Добавить участника в комнату' })
@@ -49,11 +52,13 @@ export class ChatRoomsController {
 	@UseInterceptors(FileInterceptor('file',
 		{
 				storage: diskStorage({
-					destination: './room-avatars',
+					destination: (req, file, callback) => {
+						let path = `./public/rooms/${req.params.roomId}/avatars`;
+						HandleStaticPath(path, { recursive: true }, err => { if (err) throw err })
+						callback(null, path);
+					},
 					filename: (req, file, cb) => {
-						const randomName = Array(32).fill(null).map(() =>
-							(Math.round(Math.random() * 16)).toString(16)).join('')
-						return cb(null, `${randomName}${extname(file.originalname)}`)
+						return cb(null, `${getRandomFileName()}${extname(file.originalname)}`)
 					}
 				})
 			}
@@ -63,21 +68,27 @@ export class ChatRoomsController {
 		@UploadedFile() file,
 		@Body() body,
 	) {
-		return this.chatService.updateRoom(roomId, file ,body)
+		return this.chatService.updateRoom(
+			roomId,
+			file ,
+			body,
+			`http://${process.env.DB_HOST}:${process.env.APP_PORT}/chat/${file.path}`)
 	}
 
-	@ApiOperation({ summary: 'Установить аватар комнаты по ID' })
+	@ApiOperation({ summary: 'Установить аватар комнаты по roomID' })
 	@ApiResponse({ status: 200, type: Room })
 	@UseGuards(IsUserAuth)
 	@Post('/:roomId/avatar')
 	@UseInterceptors(FileInterceptor('file',
 		{
 			storage: diskStorage({
-				destination: './room-avatars',
+				destination: (req, file, callback) => {
+					let path = `./public/rooms/${req.params.roomId}/avatars`;
+					HandleStaticPath(path, { recursive: true }, err => { if (err) throw err })
+					callback(null, path);
+				},
 				filename: (req, file, cb) => {
-					const randomName = Array(32).fill(null).map(() =>
-						(Math.round(Math.random() * 16)).toString(16)).join('')
-					return cb(null, `${randomName}${extname(file.originalname)}`)
+					return cb(null, `${getRandomFileName()}${extname(file.originalname)}`)
 				}
 			})
 		}
@@ -90,9 +101,12 @@ export class ChatRoomsController {
 
 	@ApiOperation({ summary: 'Получить аватар комнаты по имени' })
 	@ApiResponse({ status: 200, type: Room })
-	@Get('/room-avatars/:fileId')
-	async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<any> {
-		res.sendFile(fileId, { root: 'room-avatars'});
+	@Get('public/rooms/:roomId/avatars/:fileId')
+	async serveAvatar(
+		@Param('roomId') roomId,
+		@Param('fileId') fileId,
+		@Res() res): Promise<any> {
+		res.sendFile(fileId, { root: `public/rooms/${roomId}/avatars`});
 	}
 
 	@ApiOperation({ summary: 'Удалить комнату по ID' })

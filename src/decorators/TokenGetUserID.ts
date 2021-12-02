@@ -15,3 +15,12 @@ export const TokenGetUserID = createParamDecorator(
 		}
 	},
 );
+
+export const requestGetUserId = (req) => {
+	const jwt = new JwtService({ secret: process.env.SECRET_KEY })
+	const authHeader = req.headers.authorization
+	const token = authHeader.split(' ')[1]
+	const userObj = jwt.decode(token)
+	return userObj['id']
+}
+

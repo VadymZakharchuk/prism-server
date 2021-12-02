@@ -2,14 +2,12 @@ import {
   BelongsToMany,
   Column,
   DataType,
-  ForeignKey,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRoles } from '../roles/user-roles';
 import { Role } from '../roles/roles.model';
-import { Attachment } from '../attachments/attachments.model';
 import { Room } from '../chatrooms/chatrooms.model';
 import { UserRooms } from '../chatrooms/user-rooms';
 
@@ -85,12 +83,11 @@ export class User extends Model<User, UserCreationAttrs> {
   rt: string;
 
   @ApiProperty({
-    example: '12345',
+    example: 'http://domain<path>filename',
     description: 'ссылка на аватар пользователя',
   })
-  @Column({ type: DataType.INTEGER, allowNull: true })
-  @ForeignKey(() => Attachment)
-  avatar: number;
+  @Column({ type: DataType.STRING, allowNull: true })
+  avatar: string;
 
   @BelongsToMany(() => Role, () => UserRoles)
   roles: Role[];

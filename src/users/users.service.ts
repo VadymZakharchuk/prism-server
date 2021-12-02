@@ -12,7 +12,6 @@ import { AddRoleDto } from './dto/add-role.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { SetNewPasswordDto } from '../auth/dto/set-new-passowrd.dto';
-import { AttachmentsService } from '../attachments/attachments.service';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +20,6 @@ export class UsersService {
     private repoUser: typeof User,
     private jwtService: JwtService,
     private rolesService: RolesService,
-    private attachmentsService: AttachmentsService,
   ) {}
 
   async createUser(dto: CreateUserDto) {
@@ -107,17 +105,18 @@ export class UsersService {
     return user;
   }
 
-  async updateUserByID(uid: string, file: Buffer, body) {
+  async updateUserByID(uid: string, file: Buffer, body, avatarUrl) {
     const user = await this.getUserById(uid);
     const params = body;
     if (file !== undefined) {
-      params.avatar = await this.attachmentsService.createAttachment({
-        mimetype: body.mimetype,
-        ownerId: user.id,
-        file: file,
-      });
+      await user.update({ avatar: avatarUrl }, {fields: ['avatar']})
     }
     const fields = Object.keys(params);
     return await user.update(params, { fields: fields });
+  }
+
+  async setAvatar( userId: string, avatarUrl: string ) {
+    const user = await this.getUserById(userId)
+    return await user.update({ avatar: avatarUrl }, {fields: ['avatar']});
   }
 }

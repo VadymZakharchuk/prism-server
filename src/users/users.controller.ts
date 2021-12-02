@@ -8,7 +8,7 @@ import {
   UseGuards,
   UsePipes,
   UseInterceptors,
-  UploadedFile,
+  UploadedFile, Res
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,6 +21,10 @@ import { BanUserDto } from './dto/ban-user.dto';
 import { ValidationPipe } from '../pipes/validation.pipe';
 import { IsUserAuth } from '../guards/is-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { getRandomFileName, HandleStaticPath } from '../decorators/StaticFilesHandling';
+import { extname } from 'path';
+import { Room } from '../chatrooms/chatrooms.model';
 
 @ApiTags('table Users')
 @Controller('users')
@@ -64,13 +68,64 @@ export class UsersController {
   @ApiResponse({ status: 200, type: [User] })
   @UseGuards(IsUserAuth)
   @Post('/:uid')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file',
+    {
+      storage: diskStorage({
+        destination: (req, file, callback) => {
+          let path = `./public/users/${req.params.userId}/avatars`;
+          HandleStaticPath(path, { recursive: true }, err => { if (err) throw err })
+          callback(null, path);
+        },
+        filename: (req, file, cb) => {
+          return cb(null, `${getRandomFileName()}${extname(file.originalname)}`)
+        }
+      })
+    }
+    ))
   updateUserById(
     @Param('uid') uid: string,
     @UploadedFile() file,
     @Body() body,
   ) {
-    return this.usersService.updateUserByID(uid, file, body)
+    return this.usersService.updateUserByID(
+      uid,
+      file,
+      body,
+      `http://${process.env.DB_HOST}:${process.env.APP_PORT}/users/${file.path}`)
+  }
+
+  @ApiOperation({ summary: 'Установить аватар пользователя по userID' })
+  @ApiResponse({ status: 200, type: Room })
+  @UseGuards(IsUserAuth)
+  @Post('/:userId/avatar')
+  @UseInterceptors(FileInterceptor('file',
+    {
+      storage: diskStorage({
+        destination: (req, file, callback) => {
+          let path = `./public/users/${req.params.userId}/avatars`;
+          HandleStaticPath(path, { recursive: true }, err => { if (err) throw err })
+          callback(null, path);
+        },
+        filename: (req, file, cb) => {
+          return cb(null, `${getRandomFileName()}${extname(file.originalname)}`)
+        }
+      })
+    }
+  ))
+  uploadAvatar(@Param('userId') userId, @UploadedFile() file) {
+    return this.usersService.setAvatar(
+      userId,
+      `http://${process.env.DB_HOST}:${process.env.APP_PORT}/users/${file.path}`);
+  }
+
+  @ApiOperation({ summary: 'Получить аватар пользователя по ID' })
+  @ApiResponse({ status: 200, type: User })
+  @Get('public/users/:uid/avatars/:fileId')
+  async serveAvatar(
+    @Param('uid') uid,
+    @Param('fileId') fileId,
+    @Res() res): Promise<any> {
+    res.sendFile(fileId, { root: `public/users/${uid}/avatars`});
   }
 
   @ApiOperation({ summary: 'Добавить роль пользователю' })
