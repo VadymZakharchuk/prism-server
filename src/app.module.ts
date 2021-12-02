@@ -19,6 +19,7 @@ import { Attachment } from './attachments/attachments.model';
 import { UserRooms } from './chatrooms/user-rooms';
 import { Room } from './chatrooms/chatrooms.model';
 import { join } from 'path';
+import { ChatAlertGateway } from './chat-alert/chat-alert.gateway';
 
 @Module({
   imports: [

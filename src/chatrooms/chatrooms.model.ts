@@ -71,6 +71,16 @@ export class Room extends Model<Room, RoomCreationInterface> {
   })
   avatar: string;
 
+  @ApiProperty({
+      example: 'eb4b81d3ab6583195f723631',
+    description: 'Код комнаты',
+  })
+  @Column({
+    type: DataType.STRING(25),
+    allowNull: false,
+  })
+  code: string;
+
   @BelongsToMany(() => User, () => UserRooms)
   users: User[]
 }

@@ -5,6 +5,7 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { AddUserToRoomDto } from './dto/add-user-to-room.dto';
 import { DelUserFromRoomDto } from './dto/del-user-from-room.dto';
 import { User } from '../users/users.model';
+import { getRandomFileName } from '../decorators/StaticFilesHandling';
 
 @Injectable()
 export class ChatService {
@@ -15,6 +16,7 @@ export class ChatService {
 
 	async createRoom(dto: CreateRoomDto, ownerId: string) {
 		dto['owner'] = ownerId
+		dto['code'] = getRandomFileName()
 		const room =  await this.repoChatRooms.create(dto)
 		await room.$add('user', ownerId)
 		return room;
