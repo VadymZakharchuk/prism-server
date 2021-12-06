@@ -23,21 +23,31 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	handleMessage(
 		client: Socket,
 		mesObj: { sender: string, room: string, message: string }): any {
-		this.logger.log(mesObj);
 		this.wss.to(mesObj.room).emit('chatToClient', mesObj);
 	}
 
 	@SubscribeMessage('joinRoom')
-	handleRoomJoin(client: Socket, room: string ) {
+	handleRoomJoin(client: Socket, room: string, userName: string ) {
 		client.join(room);
 		this.wss.to(room).emit('joinedRoom', room)
-		return room
+		return userName
+	}
+
+	@SubscribeMessage('type-start')
+	handleUserStartTyping(client: Socket, room: string, userName: string ) {
+		this.wss.to(room).emit('userStartTyping', userName)
+	}
+
+	@SubscribeMessage('type-end')
+	handleUserFinishTyping(client: Socket, room: string, userName: string ) {
+		this.wss.to(room).emit('userFinishTyping', userName)
 	}
 
 	@SubscribeMessage('leaveRoom')
 	handleRoomLeave(client: Socket, room: string ) {
-		client.leave(room);
-		client.emit('leftRoom', room);
+		console.log(room);
+		this.wss.to(room[0]).emit('leftRoom', room[1]);
+		client.leave(room[0]);
 	}
 
 	handleConnection(client: Socket, args: any[]) {
