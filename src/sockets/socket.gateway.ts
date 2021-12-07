@@ -43,6 +43,20 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		this.wss.to(room).emit('userFinishTyping', userName)
 	}
 
+	@SubscribeMessage('base64 file')
+	handleUploadFile(client: Socket, msg) {
+		console.log(msg.fileName);
+		this.wss.to(msg.room).emit('userSentFile',{
+			type: msg.type,
+			sender: msg.sender,
+			room: msg.room,
+			file: msg.file,
+			fileName: msg.fileName,
+			ets: msg.ets,
+			TimeZoneOffset: msg.TimeZoneOffset
+		})
+	}
+
 	@SubscribeMessage('leaveRoom')
 	handleRoomLeave(client: Socket, room: string ) {
 		console.log(room);
