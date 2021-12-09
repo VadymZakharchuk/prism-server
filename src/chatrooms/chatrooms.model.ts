@@ -2,12 +2,10 @@ import {
   BelongsToMany,
   Column,
   DataType,
-  ForeignKey,
   Model,
   Table
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
-import { Attachment } from '../attachments/attachments.model';
 import { User } from '../users/users.model';
 import { UserRooms } from './user-rooms';
 

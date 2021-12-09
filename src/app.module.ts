@@ -19,7 +19,7 @@ import { Attachment } from './attachments/attachments.model';
 import { UserRooms } from './chatrooms/user-rooms';
 import { Room } from './chatrooms/chatrooms.model';
 import { join } from 'path';
-import { ChatAlertGateway } from './chat-alert/chat-alert.gateway';
+import { Chat } from './chats/chats.model';
 
 @Module({
   imports: [
@@ -33,7 +33,7 @@ import { ChatAlertGateway } from './chat-alert/chat-alert.gateway';
       username: process.env.DB_USER,
       password: process.env.DB_PSWD,
       database: process.env.DB_NAME,
-      models: [User, Role, UserRoles, UserRooms, Room, Branch, Attachment],
+      models: [User, Role, UserRoles, UserRooms, Room, Branch, Chat, Attachment],
       autoLoadModels: true,
     }),
     ServeStaticModule.forRoot({

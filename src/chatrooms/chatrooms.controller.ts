@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Res, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ChatService } from './chatrooms.service';
+import { ChatRoomsService } from './chatrooms.service';
 import { Room } from './chatrooms.model';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { TokenGetUserID } from '../decorators/TokenGetUserID';
@@ -16,14 +16,14 @@ import { getRandomFileName, HandleStaticPath } from '../decorators/StaticFilesHa
 @ApiTags('table Chat Rooms')
 @Controller('chat')
 export class ChatRoomsController {
-	constructor(private chatService: ChatService) {}
+	constructor(private chatRoomsService: ChatRoomsService) {}
 
 	@ApiOperation({ summary: 'Создание комнаты чата' })
 	@ApiResponse({ status: 200, type: Room })
 	@UseGuards(IsUserAuth)
 	@Post()
 	async createRoom(@Body() dto:CreateRoomDto, @TokenGetUserID() userId: string){
-		const room = await this.chatService.createRoom(dto, userId)
+		const room = await this.chatRoomsService.createRoom(dto, userId)
 		let path = `./public/rooms/${room.id}`;
 		HandleStaticPath(path, { recursive: true }, err => { if (err) throw err })
 		return room
@@ -34,7 +34,7 @@ export class ChatRoomsController {
 	@UseGuards(IsUserAuth)
 	@Post('/add-user/')
 	addUserToRoom(@Body() dto: AddUserToRoomDto) {
-		return this.chatService.addUserToRoom(dto)
+		return this.chatRoomsService.addUserToRoom(dto)
 	}
 
 	@ApiOperation({ summary: 'Удалить участника из комнаты' })
@@ -42,7 +42,7 @@ export class ChatRoomsController {
 	@UseGuards(IsUserAuth)
 	@Post('/del-user/')
 	removeUserFromRoom(@Body() dto: DelUserFromRoomDto) {
-		return this.chatService.removeUserFromRoom(dto)
+		return this.chatRoomsService.removeUserFromRoom(dto)
 	}
 
 	@ApiOperation({ summary: 'Update данных комнаты по ID' })
@@ -68,7 +68,7 @@ export class ChatRoomsController {
 		@UploadedFile() file,
 		@Body() body,
 	) {
-		return this.chatService.updateRoom(
+		return this.chatRoomsService.updateRoom(
 			roomId,
 			file ,
 			body,
@@ -94,7 +94,7 @@ export class ChatRoomsController {
 		}
 	))
 	uploadAvatar(@Param('roomId') roomId, @UploadedFile() file) {
-		return this.chatService.setAvatar(
+		return this.chatRoomsService.setAvatar(
 			roomId,
 			`http://${process.env.DB_HOST}:${process.env.APP_PORT}/chat/${file.path}`);
 	}
@@ -114,7 +114,7 @@ export class ChatRoomsController {
 	@UseGuards(IsUserAuth)
 	@Delete('/:roomId')
 	removeRoom(@Param('roomId') roomId: string ) {
-		return this.chatService.removeRoom(roomId)
+		return this.chatRoomsService.removeRoom(roomId)
 	}
 
 	@ApiOperation({ summary: 'Получить список всех комнат' })
@@ -123,9 +123,9 @@ export class ChatRoomsController {
 	@Get('/list')
 	listRooms(@TokenGetUserID() userId: string, @Body() body){
 		if (body.mylist) {
-			return this.chatService.listMyRooms(userId)
+			return this.chatRoomsService.listMyRooms(userId)
 		} else {
-			return this.chatService.listRooms()
+			return this.chatRoomsService.listRooms()
 		}
 	}
 
@@ -134,6 +134,6 @@ export class ChatRoomsController {
 	@UseGuards(IsUserAuth)
 	@Get('/:roomId')
 	listRoomMembers(@Param('roomId') roomId: string){
-		return this.chatService.listRoomMembers(roomId)
+		return this.chatRoomsService.listRoomMembers(roomId)
 	}
 }

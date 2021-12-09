@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ChatRoomsController } from './chatrooms.controller';
-import { ChatService } from './chatrooms.service';
+import { ChatRoomsService } from './chatrooms.service';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UserRooms } from './user-rooms';
 import { Room } from './chatrooms.model';
@@ -9,10 +9,10 @@ import { Attachment } from '../attachments/attachments.model';
 
 @Module({
   controllers: [ChatRoomsController],
-  providers: [ChatService],
+  providers: [ChatRoomsService],
   imports: [
     SequelizeModule.forFeature([Room, User, UserRooms, Attachment])
     ],
-  exports: [ChatService]
+  exports: [ChatRoomsService]
 })
 export class ChatroomsModule {}

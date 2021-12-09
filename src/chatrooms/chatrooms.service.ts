@@ -8,7 +8,7 @@ import { User } from '../users/users.model';
 import { getRandomFileName } from '../decorators/StaticFilesHandling';
 
 @Injectable()
-export class ChatService {
+export class ChatRoomsService {
 	constructor(
 		@InjectModel(Room)
 		private repoChatRooms: typeof Room,
@@ -23,6 +23,9 @@ export class ChatService {
 	}
 	async getRoomById(roomId: string) {
 		return await this.repoChatRooms.findByPk(roomId)
+	}
+	async getRoomByCode(roomCode: string) {
+		return await this.repoChatRooms.findOne({ where: { code: roomCode } })
 	}
 	async addUserToRoom (dto: AddUserToRoomDto) {
 		const room = await this.getRoomById(dto.roomId)
