@@ -32,9 +32,22 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	@SubscribeMessage('joinRoom')
 	async handleRoomJoin(client: Socket, data ) {
+		if(client.rooms.has(data.roomCode)) {
+			console.log(client.rooms);
+			return
+		}
 		client.join(data.roomCode);
 		this.wss.to(data.roomCode).emit('joinedRoom', data.userName)
 		await this.chatsService.joinRoom(data.roomId, data.userName, data.userId)
+	}
+
+	@SubscribeMessage('isUserJoinedRoom')
+	checkIsUserJoined(client: Socket, roomCode) {
+		if(client.rooms.has(roomCode)) {
+			this.wss.to(roomCode).emit('isUserInRoom', true)
+		}	else {
+			this.wss.to(roomCode).emit('isUserInRoom', false)
+		}
 	}
 
 	@SubscribeMessage('type-start')
@@ -45,21 +58,6 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	@SubscribeMessage('type-end')
 	handleUserFinishTyping(client: Socket, room: string, userName: string ) {
 		this.wss.to(room).emit('userFinishTyping', userName)
-	}
-
-	@SubscribeMessage('base64 file')
-	async handleUploadFile(client: Socket, msg) {
-		const res = await msg
-		console.log(res.fileName);
-		this.wss.to(res.room).emit('userSentFile',{
-			type: res.type,
-			sender: res.sender,
-			room: res.room,
-			file: res.file,
-			fileName: res.fileName,
-			ets: res.ets,
-			TimeZoneOffset: res.TimeZoneOffset
-		})
 	}
 
 	@SubscribeMessage('leaveRoom')

@@ -29,4 +29,14 @@ export class ChatsService {
 		dto['message'] = mObj.message
 		return await this.repoChats.create(dto)
 	}
+
+	async uploadFile( roomId: number, userId: string, fileType: string, fileUrl: string ) {
+		const dto = new RoomUserDto()
+		dto['roomRef'] = roomId
+		dto['userRef'] = parseInt(userId)
+		dto['type'] = fileType
+		dto['message'] = fileUrl
+		await this.repoChats.create(dto);
+		return fileUrl
+	}
 }
