@@ -74,9 +74,10 @@ export class ChatRoomsService {
 	}
 
 	async listRoomMembers(roomId: string) {
-		return await this.repoChatRooms.findAll({
+		const res = await this.repoChatRooms.findAll({
 			where: { id: roomId },
 			include: { all: true }
 		})
+		return res[0].users
 	}
 }

@@ -13,6 +13,9 @@ export class ChatsService {
 	) {}
 
 	async joinRoom(roomId, userName, userId) {
+		const listRoomUsers = await this.chatRoomService.listRoomMembers(roomId)
+		const isJoinAllowed = listRoomUsers.find((user) => user.id === userId)
+		if (!isJoinAllowed) return false
 		const dto = new RoomUserDto()
 		dto['roomRef'] = roomId
 		dto['userRef'] = userId

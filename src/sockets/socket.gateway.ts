@@ -6,9 +6,10 @@ import {
 	OnGatewayConnection,
 	OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { ChatsService } from '../chats/chats.service';
+import { IsUserAuth } from '../guards/is-auth.guard';
 
 
 @WebSocketGateway({ namespace: '/chat' })
@@ -33,12 +34,15 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	@SubscribeMessage('joinRoom')
 	async handleRoomJoin(client: Socket, data ) {
 		if(client.rooms.has(data.roomCode)) {
-			console.log(client.rooms);
+			return
+		}
+		const res = await this.chatsService.joinRoom(data.roomId, data.userName, data.userId)
+		if (res === false ) {
+			client.emit('joinRefused', data.userName)
 			return
 		}
 		client.join(data.roomCode);
 		this.wss.to(data.roomCode).emit('joinedRoom', data.userName)
-		await this.chatsService.joinRoom(data.roomId, data.userName, data.userId)
 	}
 
 	@SubscribeMessage('isUserJoinedRoom')
