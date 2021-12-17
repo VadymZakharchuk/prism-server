@@ -36,12 +36,8 @@ export class ChatsController {
 		@Param('type') fileType,
 		@TokenGetUserID() userId: string,
 		@UploadedFile() file: Express.Multer.File) {
-		return this.chatsService.uploadFile(
-			roomId,
-			userId,
-			fileType,
-			`http://${process.env.DB_HOST}:${process.env.APP_PORT}/files/${file.path}`);
-		}
+		return `http://${process.env.DB_HOST}:${process.env.APP_PORT}/files/${file.path}`
+	}
 
 	@ApiOperation({ summary: 'Получить файл из комнаты чата' })
 	@ApiResponse({ status: 200, type: Chat })

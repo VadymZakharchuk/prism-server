@@ -26,9 +26,9 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	@SubscribeMessage('msgToServer')
-	handleMessage( client: Socket, mesObj ): any {
+	async handleMessage( client: Socket, mesObj ) {
 		this.wss.to(mesObj.roomCode).emit('chatToClient', mesObj);
-		this.chatsService.msgToServer(mesObj)
+		await this.chatsService.msgToServer(mesObj)
 	}
 
 	@SubscribeMessage('joinRoom')

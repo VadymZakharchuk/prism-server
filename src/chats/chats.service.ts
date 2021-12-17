@@ -29,20 +29,10 @@ export class ChatsService {
 	async msgToServer(mObj) {
 		const dto = new RoomUserDto()
 		dto['roomRef'] = mObj.roomId
-		dto['userRef'] = mObj.userId
+		dto['userRef'] = mObj.user.id
 		dto['type'] = mObj.type
 		dto['message'] = mObj.message
 		return await this.repoChats.create(dto)
-	}
-
-	async uploadFile( roomId: number, userId: string, fileType: string, fileUrl: string ) {
-		const dto = new RoomUserDto()
-		dto['roomRef'] = roomId
-		dto['userRef'] = parseInt(userId)
-		dto['type'] = fileType
-		dto['message'] = fileUrl
-		await this.repoChats.create(dto);
-		return fileUrl
 	}
 
 	async listRoomMessages (roomId, pageNo, count) {
@@ -56,7 +46,6 @@ export class ChatsService {
 			where: conditions
 		})
 		const offsetRec = parseInt(pageNo) * parseInt(count)
-
 		return {
 			totalRec: countRec,
 			content: await this.repoChats.findAll({
@@ -69,7 +58,7 @@ export class ChatsService {
 				],
 				include: [{
 					model: User,
-					attributes:  ['name', 'phone', 'telegram_id']
+					attributes:  ['id','name', 'phone', 'telegram_id']
 				}]
 			})
 		}
