@@ -5,13 +5,14 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { UserRooms } from './user-rooms';
 import { Room } from './chatrooms.model';
 import { User } from '../users/users.model';
-import { Attachment } from '../attachments/attachments.model';
+import { ChatsService } from '../chats/chats.service';
+import { Chat } from '../chats/chats.model';
 
 @Module({
   controllers: [ChatRoomsController],
-  providers: [ChatRoomsService],
+  providers: [ChatRoomsService, ChatsService],
   imports: [
-    SequelizeModule.forFeature([Room, User, UserRooms, Attachment])
+    SequelizeModule.forFeature([Room, User, UserRooms, Chat])
     ],
   exports: [ChatRoomsService]
 })

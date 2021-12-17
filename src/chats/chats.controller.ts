@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Post, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { Chat } from './chats.model'
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -8,7 +8,6 @@ import { diskStorage } from 'multer';
 import { getRandomFileName, HandleStaticPath } from '../decorators/StaticFilesHandling';
 import { extname } from 'path';
 import { TokenGetUserID } from '../decorators/TokenGetUserID';
-import { Room } from '../chatrooms/chatrooms.model';
 
 @Controller('files')
 export class ChatsController {

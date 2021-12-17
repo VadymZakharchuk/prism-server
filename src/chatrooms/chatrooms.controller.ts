@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, Res, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Res,
+	Param,
+	Post,
+	UploadedFile,
+	UseGuards,
+	UseInterceptors,
+	Query
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChatRoomsService } from './chatrooms.service';
 import { Room } from './chatrooms.model';
@@ -11,12 +23,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from  'path';
 import { getRandomFileName, HandleStaticPath } from '../decorators/StaticFilesHandling';
+import { ChatsService } from '../chats/chats.service';
 
 
 @ApiTags('table Chat Rooms')
 @Controller('chat')
 export class ChatRoomsController {
-	constructor(private chatRoomsService: ChatRoomsService) {}
+	constructor(private chatRoomsService: ChatRoomsService,
+							private chatsService: ChatsService) {}
 
 	@ApiOperation({ summary: 'Создание комнаты чата' })
 	@ApiResponse({ status: 200, type: Room })
@@ -132,8 +146,19 @@ export class ChatRoomsController {
 	@ApiOperation({ summary: 'Получить список участников комнаты' })
 	@ApiResponse({ status: 200, type: Room })
 	@UseGuards(IsUserAuth)
-	@Get('/:roomId')
+	@Get('/:roomId/participants')
 	listRoomMembers(@Param('roomId') roomId: string){
 		return this.chatRoomsService.listRoomMembers(roomId)
+	}
+
+	@ApiOperation({ summary: 'Получить список сообщений комнаты' })
+	@ApiResponse({ status: 200, type: Room })
+	@UseGuards(IsUserAuth)
+	@Get('/:roomId/:pageNo')
+	listRoomMessages(
+		@Param('roomId') roomId: string,
+		@Param('pageNo') pageNo: string,
+		@Query('count') count: string){
+		return this.chatsService.listRoomMessages(roomId, pageNo, count)
 	}
 }

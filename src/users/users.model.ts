@@ -1,15 +1,16 @@
 import {
   BelongsToMany,
   Column,
-  DataType,
+  DataType, HasMany,
   Model,
-  Table,
+  Table
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRoles } from '../roles/user-roles';
 import { Role } from '../roles/roles.model';
 import { Room } from '../chatrooms/chatrooms.model';
 import { UserRooms } from '../chatrooms/user-rooms';
+import { Chat } from '../chats/chats.model';
 
 interface UserCreationAttrs {
   email: string;
@@ -94,4 +95,7 @@ export class User extends Model<User, UserCreationAttrs> {
 
   @BelongsToMany(() => Room, () => UserRooms)
   rooms: Room[];
+
+  @HasMany(() => Chat)
+  chats: Chat[]
 }

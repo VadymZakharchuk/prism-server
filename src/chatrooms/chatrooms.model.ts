@@ -81,4 +81,5 @@ export class Room extends Model<Room, RoomCreationInterface> {
 
   @BelongsToMany(() => User, () => UserRooms)
   users: User[]
+
 }

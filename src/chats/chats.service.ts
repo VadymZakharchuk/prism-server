@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Chat } from './chats.model';
 import { RoomUserDto } from './dto/chat.room-user';
 import { ChatRoomsService } from '../chatrooms/chatrooms.service';
+import sequelize, { Op } from 'sequelize';
+import { User } from '../users/users.model';
 
 @Injectable()
 export class ChatsService {
@@ -41,5 +43,35 @@ export class ChatsService {
 		dto['message'] = fileUrl
 		await this.repoChats.create(dto);
 		return fileUrl
+	}
+
+	async listRoomMessages (roomId, pageNo, count) {
+		const conditions = {
+			[Op.and]: [
+				{ roomRef: roomId },
+				{	type: { [Op.ne]: 'service' }}
+			]
+		}
+		const countRec = await this.repoChats.count({
+			where: conditions
+		})
+		const offsetRec = parseInt(pageNo) * parseInt(count)
+
+		return {
+			totalRec: countRec,
+			content: await this.repoChats.findAll({
+				where: conditions,
+				offset: offsetRec,
+				limit: parseInt(count),
+				order: [['updatedAt', 'DESC']],
+				attributes: [ 'id', 'roomRef', 'userRef', 'type', 'message',
+					[sequelize.fn('UNIX_TIMESTAMP', sequelize.col('Chat.createdAt')), 'ets']
+				],
+				include: [{
+					model: User,
+					attributes:  ['name', 'phone', 'telegram_id']
+				}]
+			})
+		}
 	}
 }

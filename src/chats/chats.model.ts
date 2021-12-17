@@ -1,6 +1,5 @@
-import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
-import { Room } from '../chatrooms/chatrooms.model';
 import { User } from '../users/users.model';
 
 interface ChatCreationInterface {
@@ -28,7 +27,6 @@ export class Chat extends Model<Chat, ChatCreationInterface> {
 		example: '12',
 		description: 'ID комнаты',
 	})
-	@ForeignKey(() => Room)
 	@Column({
 		type: DataType.INTEGER(),
 		allowNull: false,
@@ -45,6 +43,8 @@ export class Chat extends Model<Chat, ChatCreationInterface> {
 		allowNull: false,
 	})
 	userRef: number;
+	@BelongsTo(() => User)
+	user: User
 
 	@ApiProperty({
 		example: 'text / image / video / sound / file / other / service',

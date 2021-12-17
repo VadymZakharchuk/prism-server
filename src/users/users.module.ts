@@ -7,14 +7,14 @@ import { Role } from '../roles/roles.model';
 import { UserRoles } from '../roles/user-roles';
 import { RolesService } from '../roles/roles.service';
 import { AuthModule } from '../auth/auth.module';
-import { Attachment } from '../attachments/attachments.model';
 import { UserRooms } from '../chatrooms/user-rooms';
+import { Chat } from '../chats/chats.model';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService, RolesService],
   imports: [
-    SequelizeModule.forFeature([User, Role, UserRoles, UserRooms, Attachment]),
+    SequelizeModule.forFeature([User, Role, UserRoles, UserRooms, Chat]),
     forwardRef(() => AuthModule)
   ],
   exports: [UsersService],
