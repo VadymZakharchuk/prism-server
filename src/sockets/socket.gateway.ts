@@ -6,16 +6,19 @@ import {
 	OnGatewayConnection,
 	OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { ChatsService } from '../chats/chats.service';
-import { IsUserAuth } from '../guards/is-auth.guard';
+import { SocketsService } from './sockets.service';
 
 
 @WebSocketGateway({ namespace: '/chat' })
 export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
-	constructor(private chatsService: ChatsService) {}
+	constructor(
+		private socketService: SocketsService,
+		private chatsService: ChatsService
+	) {}
 
 	@WebSocketServer() 	wss: Server
 
@@ -28,7 +31,8 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	@SubscribeMessage('msgToServer')
 	async handleMessage( client: Socket, mesObj ) {
 		this.wss.to(mesObj.roomCode).emit('chatToClient', mesObj);
-		await this.chatsService.msgToServer(mesObj)
+		const res = await this.chatsService.msgToServer(mesObj)
+		await this.chatsService.msgToClient(res.id, mesObj.roomId, mesObj.user.id)
 	}
 
 	@SubscribeMessage('joinRoom')
@@ -70,12 +74,16 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		client.leave(room[0]);
 	}
 
-	handleConnection(client: Socket, args: any[]) {
+	async handleConnection(client: Socket, args: any[]) {
 		this.logger.log(`Client connected: ${client.id}`);
+		const userId = client.handshake.query.userId.toString()
+		await this.socketService.setUserStatus(userId, true);
 		return client
 	}
 
-	handleDisconnect(client: Socket) {
+	async handleDisconnect(client: Socket) {
 		this.logger.log(`Client disconnected: ${client.id}`);
+		const userId = client.handshake.query.userId.toString()
+		await this.socketService.setUserStatus(userId, false);
 	}
 }

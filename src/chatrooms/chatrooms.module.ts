@@ -7,12 +7,15 @@ import { Room } from './chatrooms.model';
 import { User } from '../users/users.model';
 import { ChatsService } from '../chats/chats.service';
 import { Chat } from '../chats/chats.model';
+import { MsiService } from '../msi/msi.service';
+import { Msi } from '../msi/msi.model';
+import { SocketsService } from '../sockets/sockets.service';
 
 @Module({
   controllers: [ChatRoomsController],
-  providers: [ChatRoomsService, ChatsService],
+  providers: [ChatRoomsService, ChatsService, MsiService, SocketsService],
   imports: [
-    SequelizeModule.forFeature([Room, User, UserRooms, Chat])
+    SequelizeModule.forFeature([Room, User, UserRooms, Chat, Msi])
     ],
   exports: [ChatRoomsService]
 })

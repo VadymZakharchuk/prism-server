@@ -68,15 +68,22 @@ export class ChatRoomsService {
 
 	async listRooms() {
 		const res =  await this.repoChatRooms.findAll({
-			include: { all: true }
+			order: [['updatedAt', 'DESC']],
+			include: [{
+				model: User,
+				attributes: ['id','name', 'phone', 'telegram_id', 'phone', 'avatar']
+			}]
 		})
 		return res.filter( room => room.users.length > 0)
 	}
 
 	async listRoomMembers(roomId: string) {
 		const res = await this.repoChatRooms.findAll({
-			where: { id: roomId },
-			include: { all: true }
+			where: { id: parseInt(roomId) },
+			include: {
+				model: User,
+				attributes: ['id', 'name', 'phone', 'telegram_id']
+			}
 		})
 		return res[0].users
 	}

@@ -15,11 +15,12 @@ import { ChatsModule } from './chats/chats.module';
 import { ChatroomsModule } from './chatrooms/chatrooms.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { AttachmentsModule } from './attachments/attachments.module';
-import { Attachment } from './attachments/attachments.model';
 import { UserRooms } from './chatrooms/user-rooms';
 import { Room } from './chatrooms/chatrooms.model';
 import { join } from 'path';
 import { Chat } from './chats/chats.model';
+import { Msi } from './msi/msi.model';
+import { MsiModule } from './msi/msi.module';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { Chat } from './chats/chats.model';
       username: process.env.DB_USER,
       password: process.env.DB_PSWD,
       database: process.env.DB_NAME,
-      models: [User, Role, UserRoles, UserRooms, Room, Branch, Chat, Attachment],
+      models: [User, Role, UserRoles, UserRooms, Room, Branch, Chat, Msi],
       autoLoadModels: true,
     }),
     ServeStaticModule.forRoot({
@@ -50,6 +51,7 @@ import { Chat } from './chats/chats.model';
     ChatsModule,
     ChatroomsModule,
     AttachmentsModule,
+    MsiModule,
   ],
   controllers: [],
   providers: [],

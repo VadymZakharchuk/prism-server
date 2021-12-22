@@ -29,18 +29,15 @@ export class UsersService {
     user.roles = [role];
     return user;
   }
-
   async getAllUsers() {
     return await this.repoUser.findAll({ include: { all: true } });
   }
-
   async getUserByEmail(email: string) {
     return await this.repoUser.findOne({
       where: { email },
       include: { all: true },
     });
   }
-
   async addRole(dto: AddRoleDto) {
     const user = await this.repoUser.findByPk(dto.userId);
     const role = await this.rolesService.getRoleByValue(dto.value);
@@ -104,7 +101,6 @@ export class UsersService {
     await user.save();
     return user;
   }
-
   async updateUserByID(uid: string, file: Buffer, body, avatarUrl) {
     const user = await this.getUserById(uid);
     const params = body;
@@ -114,7 +110,6 @@ export class UsersService {
     const fields = Object.keys(params);
     return await user.update(params, { fields: fields });
   }
-
   async setAvatar( userId: string, avatarUrl: string ) {
     const user = await this.getUserById(userId)
     return await user.update({ avatar: avatarUrl }, {fields: ['avatar']});

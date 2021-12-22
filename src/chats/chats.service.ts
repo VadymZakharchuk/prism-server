@@ -5,13 +5,15 @@ import { RoomUserDto } from './dto/chat.room-user';
 import { ChatRoomsService } from '../chatrooms/chatrooms.service';
 import sequelize, { Op } from 'sequelize';
 import { User } from '../users/users.model';
+import { MsiService } from '../msi/msi.service';
 
 @Injectable()
 export class ChatsService {
 	constructor(
 		@InjectModel(Chat)
 		private repoChats: typeof Chat,
-		private chatRoomService: ChatRoomsService
+		private chatRoomService: ChatRoomsService,
+		private msiService: MsiService,
 	) {}
 
 	async joinRoom(roomId, userName, userId) {
@@ -23,7 +25,8 @@ export class ChatsService {
 		dto['userRef'] = userId
 		dto['type'] = 'service'
 		dto['message'] = 'User ' + userName + ' joined to room'
-		return await this.repoChats.create(dto)
+		return true
+		// await this.repoChats.create(dto)
 	}
 
 	async msgToServer(mObj) {
@@ -33,6 +36,12 @@ export class ChatsService {
 		dto['type'] = mObj.type
 		dto['message'] = mObj.message
 		return await this.repoChats.create(dto)
+	}
+
+	async msgToClient(msgId, roomId, userId) {
+		const listUsers = await this.chatRoomService.listRoomMembers(roomId)
+		await this.msiService.createMsi(msgId, listUsers, userId, roomId)
+		return true
 	}
 
 	async listRoomMessages (roomId, pageNo, count) {

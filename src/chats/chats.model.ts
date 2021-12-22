@@ -1,6 +1,7 @@
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../users/users.model';
+import { Msi } from '../msi/msi.model';
 
 interface ChatCreationInterface {
 	roomRef: number;
@@ -65,4 +66,7 @@ export class Chat extends Model<Chat, ChatCreationInterface> {
 		allowNull: false,
 	})
 	message: string;
+
+	@HasMany(() => Msi)
+	msi: Msi[]
 }

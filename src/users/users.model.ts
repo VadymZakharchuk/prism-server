@@ -1,7 +1,7 @@
 import {
   BelongsToMany,
   Column,
-  DataType, HasMany,
+  DataType, Default, HasMany,
   Model,
   Table
 } from 'sequelize-typescript';
@@ -11,6 +11,7 @@ import { Role } from '../roles/roles.model';
 import { Room } from '../chatrooms/chatrooms.model';
 import { UserRooms } from '../chatrooms/user-rooms';
 import { Chat } from '../chats/chats.model';
+import { Msi } from '../msi/msi.model';
 
 interface UserCreationAttrs {
   email: string;
@@ -90,6 +91,14 @@ export class User extends Model<User, UserCreationAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   avatar: string;
 
+  @ApiProperty({
+    example: 'true / false',
+    description: 'статус пользователя',
+  })
+  @Default(false)
+  @Column({ type: DataType.BOOLEAN, allowNull: false })
+  is_online: boolean;
+
   @BelongsToMany(() => Role, () => UserRoles)
   roles: Role[];
 
@@ -98,4 +107,7 @@ export class User extends Model<User, UserCreationAttrs> {
 
   @HasMany(() => Chat)
   chats: Chat[]
+
+  @HasMany(() => Msi)
+  msi: Msi[]
 }
