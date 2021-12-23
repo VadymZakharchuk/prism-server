@@ -4,12 +4,11 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { Msi } from './msi.model';
 import { Chat } from '../chats/chats.model';
 import { MsiController } from './msi.controller';
-import { SocketsService } from '../sockets/sockets.service';
 import { User } from '../users/users.model';
 
 @Module({
 	controllers: [MsiController],
-	providers: [MsiService, SocketsService],
+	providers: [MsiService],
 	imports: [
 		SequelizeModule.forFeature([Msi, Chat, User]),
 		],

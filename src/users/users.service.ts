@@ -12,6 +12,7 @@ import { AddRoleDto } from './dto/add-role.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { SetNewPasswordDto } from '../auth/dto/set-new-passowrd.dto';
+import { Room } from '../chatrooms/chatrooms.model';
 
 @Injectable()
 export class UsersService {
@@ -81,7 +82,14 @@ export class UsersService {
       const user = this.jwtService.verify(token, {
         secret: process.env.SECRET_KEY,
       });
-      return await this.repoUser.findByPk(user.id);
+      return await this.repoUser.findOne({
+        where: { id: user.id},
+        include: [
+          { model: Room,
+            attributes: ['id', 'owner', 'name'],
+          }
+        ]
+      });
     } catch (e) {
       throw new HttpException(e.name, 401);
     }

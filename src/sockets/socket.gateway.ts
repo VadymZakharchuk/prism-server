@@ -68,6 +68,12 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		this.wss.to(room).emit('userFinishTyping', userName)
 	}
 
+	@SubscribeMessage('getUnreadMesCount')
+	async unreadMesCount(client: Socket, params) {
+		const res = await this.socketService.getUnreadMesCount(params[0], params[1]);
+		client.emit('fetchUnreadMesCount', res)
+	}
+
 	@SubscribeMessage('leaveRoom')
 	handleRoomLeave(client: Socket, room: string ) {
 		this.wss.to(room[0]).emit('leftRoom', room[1]);
