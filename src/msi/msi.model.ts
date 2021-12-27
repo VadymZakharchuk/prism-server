@@ -31,7 +31,7 @@ export class Msi extends Model<Msi, MsiCrudInterface> {
 
 	@ApiProperty({ example: '12345678', description: 'ID сообщения комнаты чата' })
 	@ForeignKey(() => Chat)
-	@Column({ type: DataType.INTEGER, onDelete: 'cascade' })
+	@Column({ type: DataType.INTEGER, allowNull: false })
 	chatRef: number;
 	@BelongsTo(() => Chat)
 	chat: Chat

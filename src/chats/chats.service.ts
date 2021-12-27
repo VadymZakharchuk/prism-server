@@ -6,6 +6,7 @@ import { ChatRoomsService } from '../chatrooms/chatrooms.service';
 import sequelize, { Op } from 'sequelize';
 import { User } from '../users/users.model';
 import { MsiService } from '../msi/msi.service';
+import { Msi } from '../msi/msi.model';
 
 @Injectable()
 export class ChatsService {
@@ -61,14 +62,20 @@ export class ChatsService {
 				where: conditions,
 				offset: offsetRec,
 				limit: parseInt(count),
-				order: [['updatedAt', 'DESC']],
-				attributes: [ 'id', 'roomRef', 'userRef', 'type', 'message',
+				attributes: [
+					'id', 'roomRef', 'userRef', 'type', 'message',
 					[sequelize.fn('UNIX_TIMESTAMP', sequelize.col('Chat.createdAt')), 'ets']
 				],
-				include: [{
-					model: User,
-					attributes:  ['id','name', 'phone', 'telegram_id']
-				}]
+				include: [
+					{
+						model: User,
+						attributes:  ['id','name', 'phone', 'telegram_id']
+					},
+					{
+						model: Msi,
+						attributes:  ['id', 'isRead'],
+					}
+				]
 			})
 		}
 	}

@@ -40,7 +40,7 @@ export class Chat extends Model<Chat, ChatCreationInterface> {
 	})
 	@ForeignKey(() => User)
 	@Column({
-		type: DataType.INTEGER(),
+		type: DataType.INTEGER,
 		allowNull: false,
 	})
 	userRef: number;
