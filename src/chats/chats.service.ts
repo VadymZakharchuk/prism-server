@@ -73,7 +73,7 @@ export class ChatsService {
 					},
 					{
 						model: Msi,
-						attributes:  ['id', 'isRead'],
+						attributes:  ['id', 'userRef', 'isRead'],
 					}
 				]
 			})
