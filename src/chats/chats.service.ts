@@ -66,6 +66,7 @@ export class ChatsService {
 					'id', 'roomRef', 'userRef', 'type', 'message',
 					[sequelize.fn('UNIX_TIMESTAMP', sequelize.col('Chat.createdAt')), 'ets']
 				],
+				order: [['id', 'DESC']],
 				include: [
 					{
 						model: User,
